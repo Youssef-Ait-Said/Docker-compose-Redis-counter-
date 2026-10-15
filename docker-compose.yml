@@ -1,0 +1,34 @@
+services:
+  train:
+    build:
+      context: .
+      dockerfile: Dockerfile.train
+    volumes:
+      - models:/models
+
+  infer:
+    build:
+      context: .
+      dockerfile: Dockerfile.infer
+    depends_on:
+      train:
+        condition: service_completed_successfully
+    volumes:
+      - models:/models:ro
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  
+  base:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
+volumes:
+  models:
+  redis_data:

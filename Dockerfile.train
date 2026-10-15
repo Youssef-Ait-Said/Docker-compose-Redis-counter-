@@ -1,0 +1,15 @@
+FROM python:3.11-slim AS builder
+WORKDIR /build
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+COPY requirements-train.txt .
+RUN pip install --no-cache-dir -r requirements-train.txt
+
+FROM python:3.11-slim
+RUN useradd -m app && mkdir /models && chown app /models
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH" PYTHONUNBUFFERED=1
+WORKDIR /app
+COPY train.py .
+USER app
+CMD ["python", "train.py"]

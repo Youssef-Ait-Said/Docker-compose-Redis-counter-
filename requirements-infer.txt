@@ -1,0 +1,5 @@
+scikit-learn==1.9.1
+joblib==1.6.0
+fastapi==0.143.2
+uvicorn==0.54.0
+redis==5.2.1
